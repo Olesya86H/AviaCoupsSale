@@ -117,6 +117,9 @@
   <ItemGroup>
     <None Include="Resources\log_logout_door_1563.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Tick_Mark_icon-icons.com_69146.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
