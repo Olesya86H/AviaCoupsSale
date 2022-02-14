@@ -215,30 +215,51 @@ namespace AviaCoupsSale
                 groupBox2.Visible = true;
 		}
 
-		private void button3_Click(object sender, EventArgs e)
-		{
-            count_ch = dt_children.Rows.Count + 2;
-            ChildrenAgesForm ChildrenForm = new ChildrenAgesForm();
-            ChildrenForm.Show();
+        private void button3_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int ag_1 = Convert.ToInt32(comboBox3.Text);
+                int ag_2 = Convert.ToInt32(comboBox4.Text);
+                if (dt_children.Rows.Count == 0)
+                    count_ch = 2 + 1; //учитываем двух детей, указанных на основной форме поиска
+                else
+                    count_ch = dt_children.Rows.Count + 1;
+                ChildrenAgesForm ChildrenForm = new ChildrenAgesForm();
+                ChildrenForm.Show();
+            }
+            catch 
+            {
+                MessageBox.Show("Задайте, пожалуйста, возраст двух детей");
+            }
 		}
 
 		private void textBox2_KeyPress(object sender, KeyPressEventArgs e)
 		{
             try
             {
-                if ((e.KeyChar.ToString() == "1") && (textBox2.Text == "1"))
+                if ((e.KeyChar.ToString() == "1") && (textBox2.Text == ""))
                 {
                     comboBox3.Visible = true;
                     label5.Visible = true;
                     comboBox4.Visible = false;
                     label6.Visible = false;
                 }
-                if (((e.KeyChar.ToString() == "2") && (textBox2.Text == "2")) || (Convert.ToInt32(textBox2.Text) > 2))
+                if (((e.KeyChar.ToString() == "2") && (textBox2.Text == "")) || (Convert.ToInt32(e.KeyChar.ToString()) > 2))
                 {
                     comboBox3.Visible = true;
                     label5.Visible = true;
                     comboBox4.Visible = true;
                     label6.Visible = true;
+                }
+
+                if (Convert.ToInt32(e.KeyChar.ToString()) > 2)
+                {
+                    comboBox3.Visible = true;
+                    label5.Visible = true;
+                    comboBox4.Visible = true;
+                    label6.Visible = true;
+                    button3.Visible = true;
                 }
             }
             catch { }
