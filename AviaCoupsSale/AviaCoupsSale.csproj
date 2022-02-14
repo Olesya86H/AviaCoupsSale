@@ -58,6 +58,12 @@
     <Compile Include="ChildrenAgesForm.Designer.cs">
       <DependentUpon>ChildrenAgesForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ReisDetails.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ReisDetails.Designer.cs">
+      <DependentUpon>ReisDetails.cs</DependentUpon>
+    </Compile>
     <Compile Include="ResultsForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -77,6 +83,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ChildrenAgesForm.resx">
       <DependentUpon>ChildrenAgesForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ReisDetails.resx">
+      <DependentUpon>ReisDetails.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ResultsForm.resx">
       <DependentUpon>ResultsForm.cs</DependentUpon>
@@ -119,6 +128,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Tick_Mark_icon-icons.com_69146.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\42586airplane_98957.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

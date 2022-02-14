@@ -63,6 +63,16 @@ namespace AviaCoupsSale.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap _42586airplane_98957 {
+            get {
+                object obj = ResourceManager.GetObject("42586airplane_98957", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap gui_eraser_icon_157160 {
             get {
                 object obj = ResourceManager.GetObject("gui_eraser_icon_157160", resourceCulture);

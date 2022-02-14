@@ -12,7 +12,7 @@ namespace AviaCoupsSale
 {
     public partial class SearchForm : Form
     {
-        SqlConnection conn = new SqlConnection(@"Data Source=AISHA\SQLEXPRESS;Initial Catalog=AviaCoupSale;User ID=AviaCoupSale;Password=Avia");
+        public static SqlConnection conn = new SqlConnection(@"Data Source=AISHA\SQLEXPRESS;Initial Catalog=AviaCoupSale;User ID=AviaCoupSale;Password=Avia");
         public static DataTable dt_flights = new DataTable();
         public static DataTable dt_children = new DataTable();
         public static string city1 = "";
@@ -253,7 +253,7 @@ namespace AviaCoupsSale
                     label6.Visible = true;
                 }
 
-                if (Convert.ToInt32(e.KeyChar.ToString()) > 2)
+                if (Convert.ToInt32(e.KeyChar.ToString()) >= 2)
                 {
                     comboBox3.Visible = true;
                     label5.Visible = true;
