@@ -15,6 +15,8 @@ namespace AviaCoupsSale
         public static SqlConnection conn = new SqlConnection(@"Data Source=AISHA\SQLEXPRESS;Initial Catalog=AviaCoupSale;User ID=AviaCoupSale;Password=Avia");
         public static DataTable dt_flights = new DataTable();
         public static DataTable dt_children = new DataTable();
+        public static int subs_adult_pass_counter = 0; //кол-во взрослых субсидированных пассажиров
+        public static int subs_ch_pass_counter = 0; //кол-во детских субсидированных пассажиров
         public static string city1 = "";
         public static string city2 = "";
         public static bool reverse_route = false;
@@ -54,7 +56,7 @@ namespace AviaCoupsSale
             {
                 count_pass = Convert.ToInt32(textBox1.Text);
             }
-            catch 
+            catch
             {
                 errors++;
             }
@@ -75,38 +77,57 @@ namespace AviaCoupsSale
                 try
                 {
                     age_ch1 = Convert.ToInt32(comboBox3.Text);
-                    age_ch2 = Convert.ToInt32(comboBox4.Text);
+                    if (count_ch > 1)
+                        age_ch2 = Convert.ToInt32(comboBox4.Text);
                 }
-                catch 
+                catch
                 {
                     errors++;
                 }
             }
 
-
-            city1 = comboBox1.Text; //город вылета
-            city2 = comboBox2.Text; //город прилета
-            dt_flights.Clear(); //очистка таблицы полетов от предыдущих возможных данных
-            try
+            if (errors > 0) //когда на форме есть ошибки - выходим из метода:
             {
-                for (int i = 0; i <= 6; i++)
-                    dt_flights.Columns.RemoveAt(0);
+                MessageBox.Show("Проверьте, пожалуйста, задание параметров на корректность!");
+                return;
             }
-            catch { }
-
-            if (dt_flights.Columns.Count == 0)
+            else
             {
-                for (int i = 0; i <= 6; i++)
-                    dt_flights.Columns.Add();
-            }
-
-            if (errors == 0) //когда на форме нет ошибок - отправляем запрос в БД:
-            {
+                city1 = comboBox1.Text; //город вылета
+                city2 = comboBox2.Text; //город прилета
+                dt_flights.Clear(); //очистка таблицы полетов от предыдущих возможных данных
                 try
                 {
-                    conn.Open();
-                    string queryString =
-                        @"select distinct case when (select count (tff.ID_AK) from T_Flights tff where tff.ID_First_Parent_Flight = tf.ID_First_Parent_Flight) > 1 
+                    for (int i = 0; i <= 6; i++)
+                        dt_flights.Columns.RemoveAt(0);
+                }
+                catch { }
+
+                if (dt_flights.Columns.Count == 0)
+                {
+                    for (int i = 0; i <= 6; i++)
+                        dt_flights.Columns.Add();
+                }
+
+                //есть ли субсидированные пассажиры?
+                DialogResult Dr = MessageBox.Show("Есть ли субсидированные пассажиры?", "Субсидированные перевозки", MessageBoxButtons.YesNo);
+                if (Dr.ToString() == DialogResult.Yes.ToString())
+                {
+                    SubsPassengerForm SubsPassengerCounter = new SubsPassengerForm();
+                    SubsPassengerCounter.Show();
+                    return;
+                }
+                result_form_show();
+            }
+        }
+
+        public static void result_form_show()
+        {
+            try
+            {
+                conn.Open();
+                string queryString =
+                    @"select distinct case when (select count (tff.ID_AK) from T_Flights tff where tff.ID_First_Parent_Flight = tf.ID_First_Parent_Flight) > 1 
 			                  then  stuff((select ','+ sa.Name_AK from s_ak sa where sa.ID_AK = tf.ID_AK group by sa.name_ak for xml path(''), type).value('.','VARCHAR(max)'), 1, 1, '')
 			                  else ak.Name_AK
 			                  end as Авиакомпания, 
@@ -123,48 +144,45 @@ namespace AviaCoupsSale
                   and o.ID_Route = rt.ID_route
                   and rt.ID_City_1 = (select sc.ID_City from S_Cities sc where sc.Name_City = @city1)
                   and rt.ID_City_2 = (select sc.ID_City from S_Cities sc where sc.Name_City = @city2)";
-                    SqlCommand command = new SqlCommand();
-                    command.Connection = conn;
-                    command.CommandText = queryString;
-                    command.CommandType = CommandType.Text;
-                    SqlParameter parameter_city1 = new SqlParameter();
-                    parameter_city1.ParameterName = "@city1";
-                    parameter_city1.SqlDbType = SqlDbType.NVarChar;
-                    parameter_city1.Direction = ParameterDirection.Input;
-                    parameter_city1.Value = city1;
-                    command.Parameters.Add(parameter_city1);
-                    SqlParameter parameter_city2 = new SqlParameter();
-                    parameter_city2.ParameterName = "@city2";
-                    parameter_city2.SqlDbType = SqlDbType.NVarChar;
-                    parameter_city2.Direction = ParameterDirection.Input;
-                    parameter_city2.Value = city2;
-                    command.Parameters.Add(parameter_city2);
-                    SqlDataReader rdr = command.ExecuteReader();
-                    while (rdr.Read()) //заполняем таблицу dt_flights результатами запроса:
-                    {
-                        DataRow dr = dt_flights.NewRow(); 
-                        dr[0] = rdr.GetValue(0);
-                        dr[1] = rdr.GetValue(1);
-                        dr[2] = rdr.GetValue(2);
-                        dr[3] = rdr.GetValue(3);
-                        dr[4] = rdr.GetValue(4);
-                        dr[5] = rdr.GetValue(5);
-                        dr[6] = rdr.GetValue(6);
-                        dt_flights.Rows.Add(dr);
-                    }
-                    conn.Close();
-
-                    //показываем результаты запроса в форме с рейсами:
-                    ResultsForm FlightsChoosing = new ResultsForm();
-                    FlightsChoosing.Show();
-                }
-                catch (Exception ex)
+                SqlCommand command = new SqlCommand();
+                command.Connection = conn;
+                command.CommandText = queryString;
+                command.CommandType = CommandType.Text;
+                SqlParameter parameter_city1 = new SqlParameter();
+                parameter_city1.ParameterName = "@city1";
+                parameter_city1.SqlDbType = SqlDbType.NVarChar;
+                parameter_city1.Direction = ParameterDirection.Input;
+                parameter_city1.Value = city1;
+                command.Parameters.Add(parameter_city1);
+                SqlParameter parameter_city2 = new SqlParameter();
+                parameter_city2.ParameterName = "@city2";
+                parameter_city2.SqlDbType = SqlDbType.NVarChar;
+                parameter_city2.Direction = ParameterDirection.Input;
+                parameter_city2.Value = city2;
+                command.Parameters.Add(parameter_city2);
+                SqlDataReader rdr = command.ExecuteReader();
+                while (rdr.Read()) //заполняем таблицу dt_flights результатами запроса:
                 {
-                    MessageBox.Show(ex.ToString());
+                    DataRow dr = dt_flights.NewRow();
+                    dr[0] = rdr.GetValue(0);
+                    dr[1] = rdr.GetValue(1);
+                    dr[2] = rdr.GetValue(2);
+                    dr[3] = rdr.GetValue(3);
+                    dr[4] = rdr.GetValue(4);
+                    dr[5] = rdr.GetValue(5);
+                    dr[6] = rdr.GetValue(6);
+                    dt_flights.Rows.Add(dr);
                 }
+                conn.Close();
+
+                //показываем результаты запроса в форме с рейсами:
+                ResultsForm FlightsChoosing = new ResultsForm();
+                FlightsChoosing.Show();
             }
-            else
-                MessageBox.Show("Проверьте, пожалуйста, задание параметров на корректность!");
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
         }
               
         //command.ExecuteNonQuery();
@@ -197,7 +215,7 @@ namespace AviaCoupsSale
             comboBox1.Text = "";
             comboBox2.Text = "";
 
-            textBox1.Text = "";
+            textBox1.Text = "1";
             textBox2.Text = "";
             comboBox3.Text = "";
             comboBox4.Text = "";
@@ -212,7 +230,27 @@ namespace AviaCoupsSale
             if (checkBox1.Checked == false)
                 groupBox2.Visible = false;
             else
-                groupBox2.Visible = true;
+            {
+                try
+                {
+                    count_ch = Convert.ToInt32(textBox2.Text);
+                }
+                catch 
+                {
+                    count_ch = 1;
+                    textBox2.Text = "1";
+                }
+                if (count_ch == 1)
+                {
+                    groupBox2.Visible = true;
+                    comboBox3.Visible = true;
+                    label5.Visible = true;
+                    comboBox4.Visible = false;
+                    label6.Visible = false;
+                }
+                else
+                    groupBox2.Visible = true;
+            }
 		}
 
         private void button3_Click(object sender, EventArgs e)
